@@ -4,7 +4,6 @@ import dts from 'bun-plugin-dts'
 import pkg from './package.json';
 
 const root = import.meta.dir;
-console.log(root)
 
 const distDir = root + '/dist';
 if (existsSync(distDir))
@@ -12,16 +11,10 @@ if (existsSync(distDir))
 
 await Bun.build({
   target: 'bun',
-  minify: true,
+  // minify: true,
   outdir: './dist',
-  // plugins: [dts()],
+  plugins: [dts()],
   format: 'esm', // there is currently no cjs
   entrypoints: ['./lib/index.ts'],
   // external: Object.keys(pkg.dependencies)
 });
-
-// Build type declarations
-// Bun.spawn(['bun', 'x', 'tsc', '--outdir', distDir], {
-//   stdout: 'inherit',
-//   stderr: 'inherit'
-// });

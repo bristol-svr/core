@@ -1,4 +1,4 @@
-import { MethodType, BunRequest, ETagOptions, BufferEncoding, ETBgodyType, BasicCredentials } from './types';
+import { MethodType, BunRequest, ETagOptions, ETBgodyType } from './types';
 import type { Middleware, Route } from './types';
 import Context from './context';
 import { ErrorLike } from 'bun';
@@ -16,12 +16,15 @@ export const METHODS: Array<MethodType> =
     'OPTIONS',
     'TRACE',
     'PATCH',
+    // special method
+    'WS'
   ];
 
 export const NOT_FOUND: Route = { callback: null, params: {} };
 export function trimLastSlash(path: string): string {
-  if (path.length > 1 && path.charCodeAt(path.length - 1) === 47) {
-    return path.slice(0, -1);
+  const _path = path;
+  if (_path.length > 1 && _path.charCodeAt(_path.length - 1) === 47) {
+    return _path.slice(0, -1);
   }
   return path;
 }
@@ -36,15 +39,18 @@ export function normalize(list: Array<{ [key: string]: string }>) {
   return result;
 }
 
-export async function compose(context: Context, middlewares: Array<Middleware> = []): Promise<Response | void> {
+export async function compose(
+  context: Context,
+  middlewares: Array<Middleware> = []
+): Promise<Response | void> {
   return new Promise(function (resolve, reject) {
     let res: any = null, prevIndex: number = -1;
     async function dispatch(index: number) {
-      if (index == prevIndex) return reject('next() function called multiple times');
       /**
-       * check if `next` was call more than once
-       * times in the same middleware function
+       * check if `next` was call more than
+       * once in the same middleware function
        */
+      if (index == prevIndex) return reject('next() function called multiple times');
       prevIndex = index;
       if (index < middlewares.length) {
         let nextCalled = false;
@@ -69,7 +75,9 @@ export async function compose(context: Context, middlewares: Array<Middleware> =
   });
 }
 
-export async function bunRequest(req: Request): Promise<BunRequest> {
+export async function bunRequest(
+  req: Request
+): Promise<BunRequest> {
   const {
     host,
     origin,
@@ -101,9 +109,9 @@ export async function bunRequest(req: Request): Promise<BunRequest> {
     bodyUsed: req.bodyUsed,
     cache: req.cache,
     clone: req.clone,
-    credential: req.credentials,
+    credentials: req.credentials,
     destination: req.destination,
-    formdata: req.formData,
+    formData: req.formData,
     integrity: req.integrity,
     json: req.json,
     keepalive: req.keepalive,
@@ -174,7 +182,7 @@ export function formatPrefix(prefix: string | undefined): string {
   return prefix && prefix.endsWith('/') ? prefix.slice(0, -1) : prefix || '';
 }
 
-export function response(ctx: Context, o?: any, options?: ResponseInit): Response {
+export function __res(ctx: Context, o?: any, options?: ResponseInit): Response {
   let status = 404;
   let statusText = 'Not Found';
   o = o || `Cannot ${ctx.req.method} ${ctx.req.path}`;
@@ -203,32 +211,31 @@ export function methods2String(node: object): string {
       METHODS.includes(v.toUpperCase() as MethodType));
 
   return _methods.includes('GET') ?
-    [..._methods, 'HEAD'].sort()
-      .join(',') : _methods.join(',');
+    [..._methods, 'HEAD'].sort().join(',') : _methods.join(',');
 }
 
-export function removeUndefined(obj: Record<string, any>) {
-  return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != undefined));
-}
+// export function removeUndefined(obj: Record<string, any>) {
+//   return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v != undefined));
+// }
 
-export function basic(header: string): BasicCredentials | null {
-  if (header.startsWith('Basic ')) {
-    // Need to decode base64
-    header = atob(header);
+// export function basic(header: string): BasicCredentials | null {
+//   if (header.startsWith('Basic ')) {
+//     // Need to decode base64
+//     header = atob(header);
 
-    const sp = header.indexOf(':', 6);
-    if (sp === -1) return null;
+//     const sp = header.indexOf(':', 6);
+//     if (sp === -1) return null;
 
-    return {
-      username: header.substring(6, sp),
-      password: header.substring(sp + 1)
-    }
-  }
+//     return {
+//       username: header.substring(6, sp),
+//       password: header.substring(sp + 1)
+//     }
+//   }
 
-  return null;
-}
+//   return null;
+// }
 
-export function bearer(header: string): string | null {
-  return header.startsWith('Bearer ')
-    ? header.substring(7) : null;
-}
+// export function bearer(header: string): string | null {
+//   return header.startsWith('Bearer ')
+//     ? header.substring(7) : null;
+// }

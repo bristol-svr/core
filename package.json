@@ -6,7 +6,6 @@
   "devDependencies": {
     "@types/cors": "^2.8.13",
     "@types/etag": "^1.8.3",
-    "@types/express": "^4.17.21",
     "@typescript-eslint/eslint-plugin": "^5.32.0",
     "@typescript-eslint/parser": "^5.32.0",
     "bun-plugin-dts": "^0.2.1",
@@ -17,7 +16,7 @@
   },
   "types": "dist/index.d.ts",
   "files": [
-    "dist/*",
+    "dist",
     "package.json",
     "README.md",
     "tsconfig.json",
@@ -39,6 +38,14 @@
   "private": false,
   "scripts": {
     "build": "bun build.ts"
+  },
+  "exports": {
+    ".": {
+      "bun": "./dist/index.js",
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
   },
   "dependencies": {
     "etag": "^1.8.1",

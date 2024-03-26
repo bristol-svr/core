@@ -14,10 +14,9 @@ export default class Context {
   // colston response options
   private options: ResponseInit | Record<string, any> = {};
 
-  constructor(request: BunRequest, config?: IServerOptions) {
+  constructor(request: BunRequest) {
     this.req = request;
     this.request = request;
-    this.#config = config;
     this.options.headers = new Headers();
     this.#method = request.method;
   }
@@ -58,6 +57,18 @@ export default class Context {
   }
 
   /**
+   * @description redirect method
+   * @param {string} url 
+   * @param {status} status
+   * @returns {Response} response
+   */
+  redirect(url: string, status: number = 302): Response {
+    this.#fresh = false;
+    this.options = { ...this.options, status };
+    return Response.redirect(url, status);
+  }
+
+  /**
    * @description headers objects
    * @returns {HeadersInit | Record<string, string>} headers
    */
@@ -76,7 +87,7 @@ export default class Context {
       get: (key: string): string => this.options.headers[key],
       append: (key: string, value: string): void => {
         if (!key || !value)
-          throw new Error('Headers key or value should not be empty');
+          throw Error('Headers key or value should not be empty');
 
         if (!(typeof key == 'string' || typeof value == 'string')) {
           try {
@@ -89,7 +100,7 @@ export default class Context {
 
         const header = this.options.headers;
         if (header[key]) this.options.headers[key] + value;
-        // TODO should we create the key if it doesn't exist?
+        // TODO: should we create the key if it doesn't exist?
         // else {
         //   this.setHeader(key, value);
         // }
@@ -105,7 +116,7 @@ export default class Context {
   setHeader(key: string, value: string): Context {
     this.#fresh = false;
     if (!key || !value) {
-      throw new Error('Headers key or value should not be empty');
+      throw Error('Headers key or value should not be empty');
     }
 
     const headers = this.options.headers;
@@ -134,11 +145,12 @@ export default class Context {
    * @returns
    */
   public head(options: ResponseInit = {}): Response {
-    return this.response('', { headers: { 'Content-Type': 'application/json' }, ...options });
+    // return this.response('', { headers: { 'Content-Type': 'application/json' }, ...options });
+    return this.end(options);
   }
 
   /**
-   * 
+   *
    * @param {string | any } body
    * @param {ResponseInit} option 
    */
@@ -188,6 +200,18 @@ export default class Context {
     } catch (e) {
       throw Error(e as any);
     }
+  }
+
+  /**
+   * @description send header and end the http request
+   * @param {ResponseInit} options
+   * @return Response
+   */
+  public end(options?: ResponseInit): Response {
+    return this.response('', {
+      headers: { 'Content-Type': 'application/json' },
+      ...options
+    });
   }
 
   /**
