@@ -11,6 +11,14 @@
     "bun-plugin-dts": "^0.2.1",
     "bun-types": "latest"
   },
+  "homepage": "https://github.com/bristol-svr/core",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bristol-svr/core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bristol-svr/core/issues"
+  },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },

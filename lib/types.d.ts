@@ -7,7 +7,8 @@ declare global {
 		headers?: Record<string, string>
 	}
 	interface Headers {
-		origin: string | Function | RegExp;
+		origin?: string | Function | RegExp;
+		[key: string]: any;
 	}
 	interface Request {
 		query: Record<string, any>;
@@ -78,6 +79,7 @@ export interface IServerOptions {
 	}
 };
 
+export type TOriginFn = (origin: string, callback: (err: Error | null, allow?: boolean | undefined) => void) => void;
 export type ETBgodyType = WithImplicitCoercion<string> | { [Symbol.toPrimitive](hint: "string"): string; }
 type WithImplicitCoercion<T> =
 	| T
@@ -102,7 +104,7 @@ export type BunRequest<T = any> = {
 	[key: string]: any;
 	method: string;
 	path: string;
-	headers: Headers & { [key: string]: any };
+	headers: Headers;
 	params: { [key: string]: any };
 	query: { [key: string]: any };
 	body: T;
@@ -178,6 +180,6 @@ export interface IRouterOptions { prefix?: string }
 export type methods = Array<MethodType>;
 export type compose = (context: Context, middlewares?: Array<Middleware>) => Promise<void>;
 export type Route = { callback: Array<Middleware> | null; params: { [key: string]: string } }
-export type Middleware<T = any> = (context: T, next: Next) => Response | void | Promise<Response | void>;
+export type Middleware = (context: Context, next: Next) => Response | void | Promise<Response | void>;
 export type Next = <T = ErrorLike>(error?: T) => Promise<void> | void;
 export type Handler = (context: Context) => Response | void | Promise<Response | void>;
