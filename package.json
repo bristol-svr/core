@@ -1,6 +1,6 @@
 {
   "name": "@colstonjs/core",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0-rc.1",
   "description": "fast and lightweight web framework for Bunjs runtime",
   "main": "dist",
   "devDependencies": {
